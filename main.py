@@ -20,6 +20,28 @@ for chain in table.chains:
 
 # begin building a rule
 rule = iptc.Rule()
+
 rule.protocol = "tcp"
-match = rule.create_match("tcp")
-match.dport = "80"
+rule.target = iptc.Target(rule, "ACCEPT")
+match = iptc.Match(rule, "state")
+chain = iptc.Chain(iptc.Table(iptc.Table.FILTER), "INPUT")
+match.state = "RELATED,ESTABLISHED"
+rule.add_match(match)
+chain.insert_rule(rule)
+
+# trying to build up following rule
+rule = iptc.Rule()
+rule.protocol = "tcp"
+rule.src = "0.0.0.0/0"
+# rule.dst = "0.0.0.0/0.0.0.0" # we'll see if this works :D
+rule.target = iptc.Target(rule, "REDIRECT")
+
+
+
+# iptables -t nat -I PREROUTING --src 0/0 --dst 0/0 -p tcp --dport 22 -j REDIRECT --to-ports 4000
+
+
+# try to insert rule into prerouting chain of nat table
+table = iptc.Table(iptc.Table.NAT)
+pre_chain = iptc.Chain(table, "PREROUTING")
+pre_chain.insert_rule(rule)
