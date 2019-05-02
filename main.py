@@ -33,15 +33,18 @@ chain.insert_rule(rule)
 rule = iptc.Rule()
 rule.protocol = "tcp"
 rule.src = "0.0.0.0/0"
-# rule.dst = "0.0.0.0/0.0.0.0" # we'll see if this works :D
+# rule.dst = "0.0.0.0/0" # seems src + dst "anywhere" is implicit?
+
+rule.dport = "22" # does this do anything??
+# match = rule.create_match("tcp")
+# match.dport = "22"
+
 rule.target = iptc.Target(rule, "REDIRECT")
-
-
+rule.target.set_parameter("to-ports", "2000")
 
 # iptables -t nat -I PREROUTING --src 0/0 --dst 0/0 -p tcp --dport 22 -j REDIRECT --to-ports 4000
-
 
 # try to insert rule into prerouting chain of nat table
 table = iptc.Table(iptc.Table.NAT)
 pre_chain = iptc.Chain(table, "PREROUTING")
-pre_chain.insert_rule(rule)
+pre_chain.insert_rule(rule, position=0)
