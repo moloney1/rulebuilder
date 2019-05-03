@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import iptc
 
+def find_probability(n_rules, i_cur_rule):
+    return str(1 / (n_rules - i_cur_rule + 1))
+
 # access the NAT table
 table = iptc.Table(iptc.Table.NAT)
 
@@ -27,8 +30,13 @@ rule.src = "0.0.0.0/0"
 rule.dst = "0.0.0.0/0" 
 
 # library doesn't seem to support "-p tcp --dport", so...
-match = rule.create_match("tcp")
-match.dport = "2002"
+dport_match = rule.create_match("tcp")
+dport_match.dport = "2002"
+
+# beginning statistic match
+stat_match = rule.create_match("statistic")
+stat_match.mode = "random"
+stat_match.probability = find_probability(2, 1)
 
 rule.target = iptc.Target(rule, "REDIRECT")
 rule.target.to_ports = "2000"
@@ -37,3 +45,4 @@ rule.target.to_ports = "2000"
 table = iptc.Table(iptc.Table.NAT)
 pre_chain = iptc.Chain(table, "PREROUTING")
 pre_chain.insert_rule(rule, position=0)
+
