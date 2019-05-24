@@ -57,5 +57,5 @@ rule.target.to_ports = "2000"
 # try to insert rule into prerouting chain of nat table
 table = iptc.Table(iptc.Table.NAT)
 pre_chain = iptc.Chain(table, "PREROUTING")
-pre_chain.insert_rule(rule, position=0)
+#pre_chain.insert_rule(rule, position=0)
 
