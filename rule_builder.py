@@ -1,5 +1,5 @@
 import iptc
-from tables import find_probability
+from tables import add_stat_random_match
 
 protocol = "tcp"
 table = iptc.Table(iptc.Table.NAT)
@@ -15,6 +15,7 @@ class RuleBuilder:
 		self.protocol = "tcp"
 		self.table = iptc.Table(iptc.Table.NAT)
 		self.chain = iptc.Chain(self.table, "PREROUTING")
+		self.stat_type = "random"
 
 		print(f'Route {self.dport} to {self.to_ports} - {self.num_rules} rules')
 
@@ -22,7 +23,7 @@ class RuleBuilder:
 		print(self.protocol)
 		pass
 
-	def init_rules(self):
+	def build_rules(self):
 		for i in range(0, len(self.to_ports)):
 			rule = iptc.Rule()
 			rule.protocol = self.protocol
@@ -33,12 +34,19 @@ class RuleBuilder:
 			rule.target = iptc.Target(rule, "REDIRECT")
 			rule.target.to_ports = str(self.to_ports[i])
 			
-			self.rules.append(rule)		
+			if self.stat_type == "random":
+				add_stat_random_match(rule, self.num_rules, i + 1)
+			
+			# prepend so that rules are executed in correct order later
+			self.rules.insert(0, rule)
 			
 	def commit_all(self):
 		for rule in self.rules:
 			self.chain.insert_rule(rule, position=0)
 
-r = RuleBuilder(2002, [2000])
-r.init_rules()
+	def set_stat_type(self, stat_type):
+		self.stat_type = stat_type
+ 	
+r = RuleBuilder(2002, [2000, 2001, 2003])
+r.build_rules()
 r.commit_all()
