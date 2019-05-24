@@ -2,12 +2,12 @@
 import iptc
 
 def find_probability(n_rules, i_cur_rule):
-    return 1 / (n_rules - i_cur_rule + 1)
+    return str(1 / (n_rules - i_cur_rule + 1))
 
 def add_stat_random_match(rule, n_rules, i_cur_rule):
     stat_match = rule.create_match("statistic")
     stat_match.mode = "random"
-    stat_match.probability = str(find_probability(n_rules,i_cur_rule))
+    stat_match.probability = find_probability(n_rules,i_cur_rule)
 
 def add_stat_roundrobin_match(rule, n_rules, i_cur_rule):
     every = n_rules - i_cur_rule
@@ -49,7 +49,7 @@ dport_match.dport = "2002"
 # beginning statistic match
 stat_match = rule.create_match("statistic")
 stat_match.mode = "random"
-stat_match.probability = str(find_probability(2, 1))
+stat_match.probability = find_probability(2, 1)
 
 rule.target = iptc.Target(rule, "REDIRECT")
 rule.target.to_ports = "2000"
