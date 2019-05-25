@@ -67,8 +67,8 @@ class RuleBuilder:
 		else:
 			print(f'{dst} is not a valid IP. Setting default (anywhere)')
 
-r = RuleBuilder(2002, [2000, 2001, 2003])
+r = RuleBuilder(2002, [2000, 2001])
 r.set_src("0.0.0.0/0")
 r.set_dst("0.0.0.0/0")
 r.build_rules()
-r.commit_all()
+#r.commit_all()
