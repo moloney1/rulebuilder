@@ -16,6 +16,9 @@ class RuleBuilder:
 		self.table = iptc.Table(iptc.Table.NAT)
 		self.chain = iptc.Chain(self.table, "PREROUTING")
 		self.stat_type = "random"
+		
+		self.src = ""
+		self.dst = ""
 
 		print(f'Route {self.dport} to {self.to_ports} - {self.num_rules} rules')
 
@@ -27,6 +30,11 @@ class RuleBuilder:
 		for i in range(0, len(self.to_ports)):
 			rule = iptc.Rule()
 			rule.protocol = self.protocol
+
+			if self.src:
+				rule.src = self.src
+			if self.dst:
+				rule.dst = self.dst
 
 			dport_match = rule.create_match(self.protocol)
 			dport_match.dport = str(self.dport)
@@ -46,7 +54,15 @@ class RuleBuilder:
 
 	def set_stat_type(self, stat_type):
 		self.stat_type = stat_type
+
+	def set_src(self, src):
+		self.src = src
+
+	def set_dst(self, dst):
+		self.dst = dst
  	
 r = RuleBuilder(2002, [2000, 2001, 2003])
+r.set_src("0.0.0.0/0")
+r.set_dst("0.0.0.0/0")
 r.build_rules()
 r.commit_all()
