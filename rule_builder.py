@@ -1,5 +1,5 @@
 import iptc
-from tables import add_stat_random_match
+from tables import add_stat_random_match, ip_is_valid
 
 protocol = "tcp"
 table = iptc.Table(iptc.Table.NAT)
@@ -56,11 +56,17 @@ class RuleBuilder:
 		self.stat_type = stat_type
 
 	def set_src(self, src):
-		self.src = src
+		if (ip_is_valid(src)):
+			self.src = src
+		else:
+			print(f'{src} is not a valid IP. Setting default (anywhere)')
 
 	def set_dst(self, dst):
-		self.dst = dst
- 	
+		if (ip_is_valid(dst)):
+			self.dst = dst
+		else:
+			print(f'{dst} is not a valid IP. Setting default (anywhere)')
+
 r = RuleBuilder(2002, [2000, 2001, 2003])
 r.set_src("0.0.0.0/0")
 r.set_dst("0.0.0.0/0")

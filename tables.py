@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import iptc
+from ipaddress import ip_network
 
 def find_probability(n_rules, i_cur_rule):
     return str(1 / (n_rules - i_cur_rule + 1))
@@ -16,6 +17,14 @@ def add_stat_roundrobin_match(rule, n_rules, i_cur_rule):
         stat_match .mode = "nth"
         stat_match.every = str(every)
         stat_match.packet = "0"
+
+def ip_is_valid(ip):
+	try:
+		ip_network(ip)
+	except ValueError:
+		return False
+	return True
+
 
 # access the NAT table
 table = iptc.Table(iptc.Table.NAT)
